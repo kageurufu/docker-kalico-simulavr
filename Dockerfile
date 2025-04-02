@@ -56,7 +56,7 @@ RUN <<eot
   )
 eot
 
-RUN git clone $KLIPPER_REPOSITORY klipper
+RUN git clone $KLIPPER_REPOSITORY klipper --branch cocoapress_dev
 
 COPY klipper ./klipper/
 
@@ -86,31 +86,9 @@ RUN <<eot
   ./moonraker-env/bin/pip install -r moonraker/scripts/moonraker-requirements.txt
 eot
 
-RUN <<eot
-  set -e
-  git clone --depth 1 https://github.com/jacksonliam/mjpg-streamer
-  (
-    cd mjpg-streamer
-    (
-      cd mjpg-streamer-experimental
-      mkdir _build
-      (
-        cd _build
-        cmake -DPLUGIN_INPUT_HTTP=OFF -DPLUGIN_INPUT_UVC=OFF -DPLUGIN_OUTPUT_FILE=OFF -DPLUGIN_OUTPUT_RTSP=OFF -DPLUGIN_OUTPUT_UDP=OFF ..
-      )
-      make
-      rm -rf _build
-    )
-  )
-eot
-
 RUN git clone --depth 1 https://github.com/pedrolamas/klipper-virtual-pins
 
 RUN git clone --depth 1 https://github.com/th33xitus/kiauh
-
-RUN git clone --depth 1 https://github.com/mainsail-crew/moonraker-timelapse
-
-COPY mjpg_streamer_images ./mjpg-streamer/mjpg-streamer-experimental/images
 
 WORKDIR /output
 
@@ -130,11 +108,7 @@ RUN <<eot
   mv /build/moonraker .
   mv /build/moonraker-env .
   mv /build/simulavr/build/pysimulavr/pysimulavr .
-  mv /build/mjpg-streamer/mjpg-streamer-experimental ./mjpg-streamer
   mv /build/klipper-virtual-pins/virtual_pins.py ./klipper/klippy/extras/virtual_pins.py
-  mv /build/kiauh/resources/shell_command.cfg ./printer_data/config/printer/shell_command.cfg
-  mv /build/moonraker-timelapse/component/timelapse.py ./moonraker/moonraker/components/timelapse.py
-  mv /build/moonraker-timelapse/klipper_macro/timelapse.cfg ./printer_data/config/printer/timelapse.cfg
   ./klippy-env/bin/python -m compileall klipper/klippy
   ./moonraker-env/bin/python -m compileall moonraker/moonraker
   python3 -m compileall pysimulavr
